@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_list_or_404
+from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 
@@ -57,6 +57,32 @@ def dog_detail_view(request, pk):
         'title': dog_object,
     }
     return render(request, 'dogs/detail.html', context=context)
+
+def dog_update_view(request, pk):
+    dog_object = get_object_or_404(Dog, pk=pk)
+    if request.method == 'POST':
+        form = DogForm(request.POST, request.FILES, instance=dog_object)
+        if form.is_valid():
+            dog_object = form.save()
+            dog_object.save()
+            return HttpResponseRedirect(reverse('dogs:dog_detail', args={pk: pk}))
+        context = {
+            'object': dog_object,
+            'form': DogForm(instance=dog_object),
+            'title': 'Изменить собаку',
+        }
+        return render(request, 'dogs/update.html', context=context)
+
+def dog_delite_view(request, pk):
+    dog_object = get_object_or_404(Dog, pk=pk)
+    if request.method == 'POST':
+        dog_object.delite()
+        return HttpResponseRedirect(reverse('dogs:dogs_list'))
+    context = {
+        'object': dog_object,
+        'title': 'Удалить собаку',
+    }
+    return render(request, 'dogs/delite.html', context=context)
 
 
 
