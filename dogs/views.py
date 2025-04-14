@@ -48,7 +48,7 @@ def dog_create_view(request):
         'title': 'Добавить собаку',
         'form': DogForm
     }
-    return render(request, 'dogs/create.html', context=context)
+    return render(request, 'dogs/create_update.html', context=context)
 
 def dog_detail_view(request, pk):
     dog_object = Dog.objects.get(pk=pk)
@@ -71,7 +71,7 @@ def dog_update_view(request, pk):
             'form': DogForm(instance=dog_object),
             'title': 'Изменить собаку',
         }
-        return render(request, 'dogs/update.html', context=context)
+        return render(request, 'dogs/create_update.html', context=context)
 
 def dog_delite_view(request, pk):
     dog_object = get_object_or_404(Dog, pk=pk)
