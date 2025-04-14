@@ -19,6 +19,8 @@ class Dog(models.Model):
     photo = models.ImageField(upload_to='dogs/', **NULLABLE, verbose_name='image')
     birth_date = models.DateField(**NULLABLE, verbose_name='birth date')
 
+
+
     def __str__(self):
         return f'{self.name} {self.breed}'
 
