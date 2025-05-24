@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse
 from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth import aauthenticate, login, logout
+from django.contrib.auth import authenticate, login, logout
 
 from users.forms import UserRegisterForm, UserLoginForm
 
@@ -14,11 +14,11 @@ def user_register_view(request):
             print(form.cleaned_data['password'])
             new_user.set_password(form.cleaned_data['password'])
             new_user.save()
-            return HttpResponseRedirect(reverse('dogs:index'))
+            return HttpResponseRedirect(reverse('users:user_login'))
     context = {
-        'title': 'Создать аккаунт',
-        'form': UserRegisterForm
-    }
+            'title': 'Создать аккаунт',
+            'form': UserRegisterForm
+        }
     return render(request, 'users/user_register.html', context=context)
 
 
@@ -27,7 +27,7 @@ def user_login_view(request):
         form = UserLoginForm(request.POST)
         if form.is_valid():
             cleaned_data = form.cleaned_data
-            user = aauthenticate(email=cleaned_data['email'], password=cleaned_data['password'])
+            user = authenticate(email=cleaned_data['email'], password=cleaned_data['password'])
             if user is not None:
                 if user.is_active:
                     login(request, user)

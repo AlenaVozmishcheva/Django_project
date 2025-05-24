@@ -66,12 +66,12 @@ def dog_update_view(request, pk):
             dog_object = form.save()
             dog_object.save()
             return HttpResponseRedirect(reverse('dogs:dog_detail', args={pk: pk}))
-        context = {
-            'object': dog_object,
-            'form': DogForm(instance=dog_object),
-            'title': 'Изменить собаку',
-        }
-        return render(request, 'dogs/create_update.html', context=context)
+    context = {
+        'object': dog_object,
+        'form': DogForm(instance=dog_object),
+        'title': 'Изменить собаку',
+    }
+    return render(request, 'dogs/create_update.html', context=context)
 
 def dog_delete_view(request, pk):
     dog_object = get_object_or_404(Dog, pk=pk)
