@@ -6,12 +6,12 @@
     <div class="card mb-4 box-shadow">
         <div style="text-align:center;">
         <img class="card_img_top"
-            src="{{ object.photo|dogs_media }}" width="348" height="320"
+            src="{{ object.photo|dogs_media }}" width="50%"
             alt="Card image cap">
         <div class="card-body">
             <p class="card-text">{{ object.name }}</p>
             <p class="card-text">{{ object.breed.name }}</p>
-            <span class="text-muted">{{ object.birth_data|default:"-"}}</span>
+            <span class="text-muted">{{ object.birth_data|default:"-" }}</span>
         </div>
         </div>
         <div class="card-footer">
