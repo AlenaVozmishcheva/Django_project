@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
 from dogs.models import Breed, Dog
 from dogs.forms import DogForm
@@ -37,7 +38,7 @@ def dogs_list_view(request):
     }
     return render(request, 'dogs/dogs.html', context)
 
-
+@login_required
 def dog_create_view(request):
     if request.method == 'POST':
         form = DogForm(request.POST, request.FILES)
@@ -50,6 +51,7 @@ def dog_create_view(request):
     }
     return render(request, 'dogs/create_update.html', context=context)
 
+@login_required
 def dog_detail_view(request, pk):
     dog_object = Dog.objects.get(pk=pk)
     context = {
@@ -58,6 +60,7 @@ def dog_detail_view(request, pk):
     }
     return render(request, 'dogs/detail.html', context=context)
 
+@login_required
 def dog_update_view(request, pk):
     dog_object = get_object_or_404(Dog, pk=pk)
     if request.method == 'POST':
@@ -73,6 +76,7 @@ def dog_update_view(request, pk):
     }
     return render(request, 'dogs/create_update.html', context=context)
 
+@login_required
 def dog_delete_view(request, pk):
     dog_object = get_object_or_404(Dog, pk=pk)
     if request.method == 'POST':
