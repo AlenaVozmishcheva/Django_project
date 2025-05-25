@@ -38,7 +38,7 @@ def dogs_list_view(request):
     }
     return render(request, 'dogs/dogs.html', context)
 
-@login_required
+@login_required(login_url='users:user_login')
 def dog_create_view(request):
     if request.method == 'POST':
         form = DogForm(request.POST, request.FILES)
@@ -51,7 +51,7 @@ def dog_create_view(request):
     }
     return render(request, 'dogs/create_update.html', context=context)
 
-@login_required
+@login_required(login_url='users:user_login')
 def dog_detail_view(request, pk):
     dog_object = Dog.objects.get(pk=pk)
     context = {
@@ -60,7 +60,7 @@ def dog_detail_view(request, pk):
     }
     return render(request, 'dogs/detail.html', context=context)
 
-@login_required
+@login_required(login_url='users:user_login')
 def dog_update_view(request, pk):
     dog_object = get_object_or_404(Dog, pk=pk)
     if request.method == 'POST':
@@ -76,7 +76,7 @@ def dog_update_view(request, pk):
     }
     return render(request, 'dogs/create_update.html', context=context)
 
-@login_required
+@login_required(login_url='users:user_login')
 def dog_delete_view(request, pk):
     dog_object = get_object_or_404(Dog, pk=pk)
     if request.method == 'POST':
