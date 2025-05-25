@@ -15,7 +15,9 @@
                 <span class="card-text">Фамилия: {{user.last_name|default:"не указано"}}</span><br>
                 <span class="card-text">Телефон: {{user.phone|default:"не указано"}}</span><br>
                 <span class="card-text">Телеграм: {{user.telegram|default:"не указано"}}</span><br>
-
+                <button class="btn btn-outline-warning">
+                    <a class="btn btn-link" href="{% url 'users:user_update' %}">обновить</a>
+                </button>
             </div>
         </div>
     </div>
