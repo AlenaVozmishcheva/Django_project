@@ -4,15 +4,17 @@
 
 <div class="col=md-4">
     <div class="card mb-4 box-shadow">
-        <div style="text-align:center;">
         <img class="card_img_top"
-            src="{{ object.photo|dogs_media }}" width="50%"
+            src="{{ object.photo|dogs_media }}" width="100%"
             alt="Card image cap">
         <div class="card-body">
-            <p class="card-text">{{ object.name }}</p>
-            <p class="card-text">{{ object.breed.name }}</p>
-            <span class="text-muted">{{ object.birth_data|default:"-" }}</span>
-        </div>
+            <p class="card-text">Кличка: {{ object.name }}</p>
+            <p class="card-text">Порода: {{ object.breed.name }}</p>
+            <span class="text-muted">Дата рождения:{{ object.birth_data|default:"-"}}</span><br>
+            <span class="text-muted">Эл. почта хозяина: {{ object.owner|default:"Без хозяина" }}</span><br>
+            <span class="text-muted">Имя хозяина: {{ object.owner.first_name|default:"Не указано" }}</span><br>
+            <span class="text-muted">Телефон хозяина: {{ object.owner.phone|default:"Не указано" }}</span><br>
+            <span class="text-muted">Телеграм хозяина: {{ object.owner.telegram|default:"Не указано" }}</span>
         </div>
         <div class="card-footer">
             <a class="btn btn-link" href="{%  url 'dogs:dog_update' object.pk %}">обновить</a>
