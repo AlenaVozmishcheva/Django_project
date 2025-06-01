@@ -2,7 +2,9 @@ from django import forms
 
 from users.models import User
 from users.validators import validate_password
-from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm, AuthenticationForm
+from django.core.exceptions import ValidationError
+from django.contrib.auth import password_validation
 
 
 class StyleFormMixin:
@@ -15,30 +17,33 @@ class StyleFormMixin:
 class UserForm(StyleFormMixin, forms.ModelForm):
     class Meta:
         model = User
-        fields = ('email', 'first_name', 'last_name', 'phone',)
+        fields = ('email', 'first_name', 'last_name', 'phone', 'avatar',)
 
 
 
-class UserRegisterForm(StyleFormMixin, forms.ModelForm):
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
-    password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
-
+class UserRegisterForm(StyleFormMixin, UserCreationForm):
+    # password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
+    # password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
     class Meta:
         model = User
         fields = ('email',)
 
     def clean_password2(self):
         cleaned_data = self.cleaned_data
-        validate_password(cleaned_data['password'])
-        if cleaned_data['password'] != cleaned_data['password2']:
+        validate_password(cleaned_data['password1'])
+        if cleaned_data['password1'] != cleaned_data['password2']:
             print('Пароли не совпадают!')
-            raise forms.ValidationError('Пароли не совпадают!!!')
+            raise ValidationError(
+                self.error_messages['password_mismatch'],
+                code='password_mismatch'
+            )
         return cleaned_data['password2']
 
 
-class UserLoginForm(StyleFormMixin, forms.Form):
-    email = forms.EmailField()
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
+class UserLoginForm(StyleFormMixin, AuthenticationForm):
+    pass
+    # email = forms.EmailField()
+    # password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
 
 
 class UserUpdateForm(StyleFormMixin, forms.ModelForm):
@@ -47,8 +52,18 @@ class UserUpdateForm(StyleFormMixin, forms.ModelForm):
         fields = ('email', 'first_name', 'last_name', 'phone', 'telegram', 'avatar',)
 
 
-class UserChangePasswordForm(StyleFormMixin, PasswordChangeForm):
-    pass
+class UserPasswordChangeForm(StyleFormMixin, PasswordChangeForm):
+    def clean_new_password2(self):
+        password1 = self.cleaned_data.get('new_password1')
+        password2 = self.cleaned_data.get('new_password2')
+        validate_password(password2)
+        if password1 and password2 and password1 != password2:
+            raise ValidationError(
+                self.error_messages['password_mismatch'],
+                code='password_mismatch'
+            )
+        password_validation.validate_password(password2, self.user)
+        return password2
 
 
 
