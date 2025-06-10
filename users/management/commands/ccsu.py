@@ -1,20 +1,49 @@
 from django.core.management import BaseCommand
 
-from users.models import User
+from users.models import User, UserRoles
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        admin_user = User.objects.create(
+        admin = User.objects.create(
             email='admin@web.top',
             first_name='Admin',
             last_name='Adminov',
+            role=UserRoles.ADMIN,
             is_staff=True,
             is_superuser=True,
             is_active=True,
         )
 
-        admin_user.set_password('03Uzegav')
-        admin_user.save()
+        admin.set_password('03Uzegav')
+        admin.save()
         print('Admin Created')
+
+        moderator = User.objects.create(
+            email='moderator@web.top',
+            first_name='Moderator',
+            last_name='Moderatov',
+            role=UserRoles.MODERATOR,
+            is_staff=True,
+            is_superuser=False,
+            is_active=True,
+        )
+
+        moderator.set_password('03Uzegav')
+        moderator.save()
+        print('Moderator Created')
+
+        user = User.objects.create(
+            email='user@web.top',
+            first_name='User',
+            last_name='Userov',
+            role=UserRoles.USER,
+            is_staff=False,
+            is_superuser=False,
+            is_active=True,
+        )
+
+        user.set_password('03Uzegav')
+        user.save()
+        print('User Created')
