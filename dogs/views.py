@@ -70,7 +70,7 @@ class DogDeactivatedListView(LoginRequiredMixin, ListView):
 class DogCreateView(LoginRequiredMixin, CreateView):
     model = Dog
     form_class = DogForm
-    template_name = 'dogs/create_update.html'
+    template_name = 'dogs/create.html'
     extra_context = {
         'title': 'Добавить собаку'
     }
@@ -97,7 +97,7 @@ class DogDetailView(DetailView):
 class DogUpdateView(LoginRequiredMixin, UpdateView):
     model = Dog
     form_class = DogForm
-    template_name = 'dogs/create_update.html'
+    template_name = 'dogs/update.html'
 
     def get_success_url(self):
         return reverse('dogs:dog_detail', args=[self.kwargs.get('pk')])
