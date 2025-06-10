@@ -10,6 +10,7 @@ from django.forms import inlineformset_factory
 
 from dogs.models import Breed, Dog, DogParent
 from dogs.forms import DogForm, DogParentForm
+from users.models import UserRoles
 
 
 def index_view(request):
@@ -45,6 +46,26 @@ class DogListView(ListView):
         'title': 'Питомник - все наши собаки'
     }
     template_name = 'dogs/dogs.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(is_active=True)
+        return queryset
+
+class DogDeactivatedListView(LoginRequiredMixin, ListView):
+    model = Dog
+    extra_context = {
+        'title': 'Питомник - все наши собаки'
+    }
+    template_name = 'dogs/dogs.html'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.queryset.user.role in [UserRoles.ADMIN, UserRoles.MODERATOR]:
+            queryset = queryset.filter(is_active=False)
+        if self.request.user.role == UserRoles.USER:
+            queryset = queryset.filter(is_active=False, owner=self.request.user)
+        return queryset
 
 class DogCreateView(LoginRequiredMixin, CreateView):
     model = Dog
