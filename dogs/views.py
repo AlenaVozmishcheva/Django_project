@@ -20,21 +20,24 @@ def index_view(request):
     return render(request, 'dogs/index.html', context=context)
 
 
-def breeds_list_view(request):
-    context = {
-        'object_list' : Breed.objects.all(),
-        'title': 'Питомник - Все наши породы'
+class BreedsListView(ListView):
+    model = Breed
+    extra_context = {
+        'title': 'Все наши породы'
     }
-    return render(request, 'dogs/breeds.html', context=context)
+    template_name = 'dogs/breeds.html'
 
-def breed_dogs_list_view(request, pk: int):
-    breed_object = Breed.objects.get(pk=pk)
-    context = {
-        'object_list' : Dog.objects.filter(breed_id=pk),
-        'title': f'Собаки породы - {breed_object.name}',
-        'breed_pk': breed_object.pk
+class DogBreedListView(LoginRequiredMixin, ListView):
+    model = Dog
+    template_name = 'dogs/dogs.html'
+    extra_context = {
+        'title': 'Собаки выбранной породы'
     }
-    return render(request, 'dogs/dogs.html', context=context)
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(breed_id=self.kwargs.get('pk'))
+        return queryset
+
 
 class DogListView(ListView):
     model = Dog
@@ -66,7 +69,7 @@ class DogDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        object_ = self.get_object()
+        object_ = context_data['object']
         context_data['title'] = f'Подробная информация {object_}'
         return context_data
 
@@ -91,7 +94,7 @@ class DogUpdateView(LoginRequiredMixin, UpdateView):
             formset = DogParentFormset(self.request.POST, instance=self.object)
         else:
             formset = DogParentFormset(instance=self.object)
-        object_ = self.get_object()
+        object_ = context_data['object']
         context_data['title'] = f'Изменить собаку {object_}'
         context_data['formset'] = formset
         return context_data
@@ -116,7 +119,7 @@ class DogDeleteView(LoginRequiredMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
-        object_ = self.get_object()
+        object_ = context_data['object']
         context_data['title'] = f'Удалить собаку {object_}'
         return context_data
 
