@@ -5,11 +5,13 @@ from django.http import Http404
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.forms import inlineformset_factory
+from django.core.exceptions import PermissionDenied
 
 from dogs.models import Breed, Dog, DogParent
 from dogs.forms import DogForm, DogParentForm
+from dogs.services import  send_views_email
 from users.models import UserRoles
 
 
@@ -61,7 +63,7 @@ class DogDeactivatedListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        if self.queryset.user.role in [UserRoles.ADMIN, UserRoles.MODERATOR]:
+        if self.request.user.role in [UserRoles.ADMIN, UserRoles.MODERATOR]:
             queryset = queryset.filter(is_active=False)
         if self.request.user.role == UserRoles.USER:
             queryset = queryset.filter(is_active=False, owner=self.request.user)
@@ -77,6 +79,8 @@ class DogCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('dogs:dogs_list')
 
     def form_valid(self, form):
+        if self.request.user.role != UserRoles.USER:
+            raise PermissionDenied()
         self.object = form.save()
         self.object.owner = self.request.user
         self.object.save()
@@ -92,6 +96,13 @@ class DogDetailView(DetailView):
         context_data = super().get_context_data(**kwargs)
         object_ = context_data['object']
         context_data['title'] = f'Подробная информация {object_}'
+        dog_object_increase = get_object_or_404(Dog, pk=object_.pk)
+        if object_.owner != self.request.user and self.request.user.role not in [UserRoles.ADMIN, UserRoles.MODERATOR]:
+            dog_object_increase.views_count()
+        if object_.owner:
+            object_owner_email = object_.owner.email
+            if dog_object_increase.views % 20 == 0 and dog_object_increase.views != 0:
+                send_views_email(dog_object_increase.name, object_owner_email, dog_object_increase.views)
         return context_data
 
 class DogUpdateView(LoginRequiredMixin, UpdateView):
@@ -104,8 +115,8 @@ class DogUpdateView(LoginRequiredMixin, UpdateView):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.owner != self.request.user and not self.request.user.is_staff:
-            raise Http404
+        if self.object.owner != self.request.user and self.request.user.role != UserRoles.ADMIN:
+            raise PermissionDenied
         return self.object
 
     def get_context_data(self, **kwargs):
@@ -132,10 +143,12 @@ class DogUpdateView(LoginRequiredMixin, UpdateView):
 
 
 
-class DogDeleteView(LoginRequiredMixin, DeleteView):
+class DogDeleteView(PermissionRequiredMixin, DeleteView):
     model = Dog
     template_name = 'dogs/delete.html'
     success_url = reverse_lazy('dogs:dogs_list')
+    permission_required = 'dogs.delete_dog'
+    permission_denied_message = 'У вас нет нужных прав для данного действия'
 
 
     def get_context_data(self, **kwargs):
