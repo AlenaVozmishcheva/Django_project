@@ -8,6 +8,7 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, D
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.forms import inlineformset_factory
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 
 from dogs.models import Breed, Dog, DogParent
 from dogs.forms import DogForm, DogParentForm, DogAdminForm
@@ -29,6 +30,19 @@ class BreedsListView(ListView):
         'title': 'Все наши породы'
     }
     template_name = 'dogs/breeds.html'
+    paginate_by = 3
+
+class BreedSearchListView(LoginRequiredMixin, ListView):
+    model = Breed
+    template_name = 'dogs/breeds.html'
+    extra_context = {
+        'title': 'Результат поиска'
+    }
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        object_list = Breed.objects.filter(Q(name__icontains=query))
+        return object_list
 
 class DogBreedListView(LoginRequiredMixin, ListView):
     model = Dog
@@ -48,6 +62,7 @@ class DogListView(ListView):
         'title': 'Питомник - все наши собаки'
     }
     template_name = 'dogs/dogs.html'
+    paginate_by = 3
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -69,6 +84,39 @@ class DogDeactivatedListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(is_active=False, owner=self.request.user)
         return queryset
 
+class DogSearchListView(LoginRequiredMixin, ListView):
+    model = Dog
+    template_name = 'dogs/dog_search_results.html'
+    extra_context = {
+        'title': 'Результат поиска'
+    }
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        object_list = Dog.objects.filter(
+            Q(name__icontains=query, is_active=True)
+        )
+        return object_list
+
+
+class BreedDogSearchListView(LoginRequiredMixin, ListView):
+    model = Breed
+    template_name = 'dogs/breeds.html'
+    extra_context = {
+        'title': 'Результаты поиска'
+    }
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        object_list = Breed.objects.filter(
+            Q(name__icontains=query, is_active=True)
+        )
+        breed_object_list = Breed.objects.filter(
+            Q(name__icontains=query)
+        )
+        object_list = list(breed_object_list) + list(breed_object_list)
+        return object_list
+
 class DogCreateView(LoginRequiredMixin, CreateView):
     model = Dog
     form_class = DogForm
@@ -87,7 +135,7 @@ class DogCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class DogDetailView(DetailView):
+class DogDetailView(LoginRequiredMixin, DetailView):
     model = Dog
     template_name = 'dogs/detail.html'
 
@@ -97,7 +145,7 @@ class DogDetailView(DetailView):
         object_ = context_data['object']
         context_data['title'] = f'Подробная информация {object_}'
         dog_object_increase = get_object_or_404(Dog, pk=object_.pk)
-        if object_.owner != self.request.user and self.request.user.role not in [UserRoles.ADMIN, UserRoles.MODERATOR]:
+        if object_.owner != self.request.user.role and self.request.user.role not in [UserRoles.ADMIN, UserRoles.MODERATOR]:
             dog_object_increase.views_count()
         if object_.owner:
             object_owner_email = object_.owner.email
