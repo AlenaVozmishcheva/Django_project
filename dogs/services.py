@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import send_mail
 
-from dogs.models import Breed, Dog
+from dogs.models import Breed
 
 
 def get_breed_cache():
@@ -25,4 +25,3 @@ def send_views_email(dog_object, owner_email, views_count):
         from_email=settings.EMAIL_HOST_USER,
         recipient_list=[owner_email, ]
     )
-

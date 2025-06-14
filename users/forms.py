@@ -20,7 +20,6 @@ class UserForm(StyleFormMixin, forms.ModelForm):
         fields = ('email', 'first_name', 'last_name', 'phone', 'avatar',)
 
 
-
 class UserRegisterForm(StyleFormMixin, UserCreationForm):
     # password = forms.CharField(label='Пароль', widget=forms.PasswordInput)
     # password2 = forms.CharField(label='Повторите пароль', widget=forms.PasswordInput)
@@ -64,6 +63,3 @@ class UserPasswordChangeForm(StyleFormMixin, PasswordChangeForm):
             )
         password_validation.validate_password(password2, self.user)
         return password2
-
-
-

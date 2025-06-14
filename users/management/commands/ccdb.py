@@ -4,6 +4,7 @@ import pyodbc
 
 from config.settings import USER, PASSWORD, HOST, PAD_DATABASE, DRIVER, DATABASE
 
+
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
@@ -20,7 +21,6 @@ class Command(BaseCommand):
         else:
             conn.autocommit = True
             try:
-            # conn.execute(fr"DROP DATABASE {DATABASE};")
                 conn.execute(fr'CREATE DATABASE {DATABASE};')
             except pyodbc.ProgrammingError as ex:
                 print(ex)

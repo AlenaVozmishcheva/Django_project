@@ -1,11 +1,8 @@
 import random
 import string
 
-from django.shortcuts import render, reverse, redirect
-from django.http import HttpResponseRedirect, HttpResponse
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.shortcuts import reverse, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.contrib.auth.views import LoginView, PasswordChangeView, LogoutView
 from django.views.generic import CreateView, UpdateView, DetailView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -44,7 +41,6 @@ class UserProfileView(UpdateView):
     form_class = UserForm
     template_name = 'users/user_profile_read_only.html'
 
-
     def get_object(self, queryset=None):
         return self.request.user
 
@@ -74,12 +70,10 @@ class UserPasswordChangeView(PasswordChangeView):
     template_name = 'users/user_password_change.html'
     success_url = reverse_lazy('users:user_profile')
 
-
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data()
         context_data['title'] = f'Изменить пароль {self.request.user}'
         return context_data
-
 
 
 class UserLogautView(LogoutView):
@@ -87,6 +81,7 @@ class UserLogautView(LogoutView):
     extra_context = {
         'title': 'Выход из аккаунта'
     }
+
 
 class UserListView(LoginRequiredMixin, ListView):
     model = User
@@ -113,6 +108,7 @@ class UserDetailView(DetailView):
         context_data['title'] = f'Профиль пользователя {user_obj}'
         return context_data
 
+
 @login_required(login_url='users:user_login')
 def user_generate_new_password_view(request):
     new_password = ''.join(random.sample((string.ascii_letters + string.digits), 12))
@@ -120,5 +116,3 @@ def user_generate_new_password_view(request):
     request.user.save()
     send_new_password(request.user.email, new_password)
     return redirect(reverse('dogs:index'))
-
-

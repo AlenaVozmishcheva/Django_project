@@ -1,9 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.template.context_processors import request
 
-from django.http import Http404
 from django.urls import reverse, reverse_lazy
-from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.forms import inlineformset_factory
@@ -12,13 +9,13 @@ from django.db.models import Q
 
 from dogs.models import Breed, Dog, DogParent
 from dogs.forms import DogForm, DogParentForm, DogAdminForm
-from dogs.services import  send_views_email
+from dogs.services import send_views_email
 from users.models import UserRoles
 
 
 def index_view(request):
     context = {
-        'object_list' : Breed.objects.all()[:3],
+        'object_list': Breed.objects.all()[:3],
         'title': 'Питомник - Главная'
     }
     return render(request, 'dogs/index.html', context=context)
@@ -32,6 +29,7 @@ class BreedsListView(ListView):
     template_name = 'dogs/breeds.html'
     paginate_by = 3
 
+
 class BreedSearchListView(LoginRequiredMixin, ListView):
     model = Breed
     template_name = 'dogs/breeds.html'
@@ -43,6 +41,7 @@ class BreedSearchListView(LoginRequiredMixin, ListView):
         query = self.request.GET.get('q')
         object_list = Breed.objects.filter(Q(name__icontains=query))
         return object_list
+
 
 class DogBreedListView(LoginRequiredMixin, ListView):
     model = Dog
@@ -69,6 +68,7 @@ class DogListView(ListView):
         queryset = queryset.filter(is_active=True)
         return queryset
 
+
 class DogDeactivatedListView(LoginRequiredMixin, ListView):
     model = Dog
     extra_context = {
@@ -83,6 +83,7 @@ class DogDeactivatedListView(LoginRequiredMixin, ListView):
         if self.request.user.role == UserRoles.USER:
             queryset = queryset.filter(is_active=False, owner=self.request.user)
         return queryset
+
 
 class DogSearchListView(LoginRequiredMixin, ListView):
     model = Dog
@@ -117,6 +118,7 @@ class BreedDogSearchListView(LoginRequiredMixin, ListView):
         object_list = list(dog_object_list) + list(breed_object_list)
         return object_list
 
+
 class DogCreateView(LoginRequiredMixin, CreateView):
     model = Dog
     form_class = DogForm
@@ -139,7 +141,6 @@ class DogDetailView(LoginRequiredMixin, DetailView):
     model = Dog
     template_name = 'dogs/detail.html'
 
-
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         object_ = context_data['object']
@@ -152,6 +153,7 @@ class DogDetailView(LoginRequiredMixin, DetailView):
             if dog_object_increase.views % 20 == 0 and dog_object_increase.views != 0:
                 send_views_email(dog_object_increase.name, object_owner_email, dog_object_increase.views)
         return context_data
+
 
 class DogUpdateView(LoginRequiredMixin, UpdateView):
     model = Dog
@@ -194,11 +196,9 @@ class DogUpdateView(LoginRequiredMixin, UpdateView):
         formset = context_data['formset']
         self.object = form.save()
         if formset.is_valid():
-           formset.instance = self.object
-           formset.save()
-
+            formset.instance = self.object
+            formset.save()
         return super().form_valid(form)
-
 
 
 class DogDeleteView(PermissionRequiredMixin, DeleteView):
@@ -208,12 +208,12 @@ class DogDeleteView(PermissionRequiredMixin, DeleteView):
     permission_required = 'dogs.delete_dog'
     permission_denied_message = 'У вас нет нужных прав для данного действия'
 
-
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         object_ = context_data['object']
         context_data['title'] = f'Удалить собаку {object_}'
         return context_data
+
 
 def dog_toggle_activity(request, pk):
     dog_item = get_object_or_404(Dog, pk=pk)
@@ -223,9 +223,3 @@ def dog_toggle_activity(request, pk):
         dog_item.is_active = True
     dog_item.save()
     return redirect(reverse('dogs:dogs_list'))
-
-
-
-
-
-
