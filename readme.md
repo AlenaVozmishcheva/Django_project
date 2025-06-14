@@ -1,26 +1,51 @@
 Платформа питомника включает в себя разделы:
 
-породы
-собаки
-пользователи
-отзывы
-Виртуальное окружение используемое для проекта: 
---venv
+- породы
+- собаки
+- пользователи
+- отзывы
 
-После настройки виртуального окружения установите зависимости из файла requirements.txt
---pip install -r requirements.txt
-Заполните .env файл согласно файла .env_sample
-Создайте базу данных при помощи команды
-python manage.py create_db
-Создайте миграции при помощи команды
-python manage.py makemigrations
-Примените созданные миграции
-python manage.py migrate
-Выполните команду для создания основных пользователей
-python manage.py comand_create_super_user
-Выполните команду для заполнения базы данных
-python manage.py loaddata dogs.json
-Выполните команду для запуска redis сервера
-redis-server
-Выполните команду для запуска приложения, желательно в отдельном терминале
-python manage.py runserver
+Виртуальное окружение используемое для проекта: venv
+
+1) После настройки виртуального окружения установите зависимости из файла requirements.txt
+``` bash
+     pip install -r requirements.txt
+```
+2) Заполните .env файл согласно файла .env_sample
+3) Создайте базу данных при помощи команды
+
+``` bash
+     python manage.py create_db
+``` 
+     
+
+4) Создайте миграции при помощи команды
+
+``` bash
+    python manage.py makemigrations
+```
+5) Примените созданные миграции
+
+``` bash
+    python manage.py migrate
+```
+6) Выполните команду для создания основных пользователей
+
+``` bash
+    python manage.py comand_create_super_user
+```
+7) Выполните команду для заполнения базы данных
+
+``` bash
+    python manage.py loaddata dogs.json
+```
+8) Выполните команду для запуска redis сервера
+
+``` bash
+    redis-server
+```
+9) Выполните команду для запуска приложения, желательно в отдельном терминале
+
+``` bash
+    python manage.py runserver
+```
